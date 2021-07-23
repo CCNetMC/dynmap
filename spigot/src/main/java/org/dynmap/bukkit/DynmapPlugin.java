@@ -212,7 +212,6 @@ public class DynmapPlugin extends JavaPlugin implements DynmapAPI {
     private static class BlockToCheck {
         Location loc;
         Material typeid;
-        byte data;
         String trigger;
     };
     private LinkedList<BlockToCheck> blocks_to_check = null;
@@ -1217,7 +1216,7 @@ public class DynmapPlugin extends JavaPlugin implements DynmapAPI {
                 /* Avoid stationary and moving water churn */
                 //if(bt == 9) bt = 8;
                 //if(btt.typeid == 9) btt.typeid = 8;
-                if((bt != btt.typeid) || (btt.data != w.getBlockAt(loc).getData())) {
+                if((bt != btt.typeid)) {
                     String wn = getWorld(w).getName();
                     SnapshotCache.sscache.invalidateSnapshot(wn, loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
                     mapManager.touch(wn, loc.getBlockX(), loc.getBlockY(), loc.getBlockZ(), btt.trigger);
@@ -1241,7 +1240,6 @@ public class DynmapPlugin extends JavaPlugin implements DynmapAPI {
         BlockToCheck btt = new BlockToCheck();
         btt.loc = b.getLocation();
         btt.typeid = b.getType();
-        btt.data = b.getData();
         btt.trigger = trigger;
         blocks_to_check_accum.add(btt); /* Add to accumulator */
         btth.startIfNeeded();
@@ -1346,9 +1344,9 @@ public class DynmapPlugin extends JavaPlugin implements DynmapAPI {
                     Material m = b.getType();
                     if(m == null) return;
                     switch(m) {
-                        case STATIONARY_WATER:
+                        //case STATIONARY_WATER:
                         case WATER:
-                        case STATIONARY_LAVA:
+                        //case STATIONARY_LAVA:
                         case LAVA:
                         case GRAVEL:
                         case SAND:

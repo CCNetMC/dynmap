@@ -211,7 +211,7 @@ public class DynmapPlugin extends JavaPlugin implements DynmapAPI {
     
     private static class BlockToCheck {
         Location loc;
-        int typeid;
+        Material typeid;
         byte data;
         String trigger;
     };
@@ -240,7 +240,7 @@ public class DynmapPlugin extends JavaPlugin implements DynmapAPI {
         public int getBlockIDAt(String wname, int x, int y, int z) {
             World w = getServer().getWorld(wname);
             if((w != null) && w.isChunkLoaded(x >> 4, z >> 4)) {
-                return getBlockIdFromBlock(w.getBlockAt(x, y, z));
+                return w.getBlockAt(x,  y,  z).getType().getId();
             }
             return -1;
         }
@@ -1213,10 +1213,10 @@ public class DynmapPlugin extends JavaPlugin implements DynmapAPI {
                 World w = loc.getWorld();
                 if(!w.isChunkLoaded(loc.getBlockX()>>4, loc.getBlockZ()>>4))
                     continue;
-                int bt = getBlockIdFromBlock(w.getBlockAt(loc));
+                Material bt = w.getBlockAt(loc).getType();
                 /* Avoid stationary and moving water churn */
-                if(bt == 9) bt = 8;
-                if(btt.typeid == 9) btt.typeid = 8;
+                //if(bt == 9) bt = 8;
+                //if(btt.typeid == 9) btt.typeid = 8;
                 if((bt != btt.typeid) || (btt.data != w.getBlockAt(loc).getData())) {
                     String wn = getWorld(w).getName();
                     SnapshotCache.sscache.invalidateSnapshot(wn, loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
@@ -1240,7 +1240,7 @@ public class DynmapPlugin extends JavaPlugin implements DynmapAPI {
     private void checkBlock(Block b, String trigger) {
         BlockToCheck btt = new BlockToCheck();
         btt.loc = b.getLocation();
-        btt.typeid = getBlockIdFromBlock(b);
+        btt.typeid = b.getType();
         btt.data = b.getData();
         btt.trigger = trigger;
         blocks_to_check_accum.add(btt); /* Add to accumulator */
@@ -1369,7 +1369,7 @@ public class DynmapPlugin extends JavaPlugin implements DynmapAPI {
                     Block b = event.getBlock();
                     Material m = b.getType();
                     String m_id = (m != null) ? m.toString() : "";
-                    boolean not_pressure_plate = (m_id != "WOOD_PLATE") && (m_id != "STONE_PLATE") && (!m_id.contains("PRESSURE_PLATE")) && (m_id != "");
+                    boolean not_pressure_plate = (!m_id.contains("PRESSURE_PLATE")) && (m_id != "");
                     if (not_pressure_plate)
                         checkBlock(b, "blockfromto");
                     b = event.getToBlock();

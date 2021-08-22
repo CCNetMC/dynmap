@@ -11,7 +11,7 @@ import org.owasp.html.Sanitizers;
 import org.dynmap.common.DynmapChatColor;
 
 public class Client {
-    
+
     public static class Update implements JSONAware, JSONStreamAware {
         public long timestamp = System.currentTimeMillis();
 
@@ -158,7 +158,7 @@ public class Client {
         public String type = "component";
         /* Each subclass must provide 'ctype' string for component 'type' */
     }
-    
+
     // Strip color - assume we're returning safe html text
     public static String stripColor(String s) {
         s = DynmapChatColor.stripColor(s);    /* Strip standard color encoding */
@@ -178,27 +178,27 @@ public class Client {
         return sanitizeHTML(s);
     }
     private static String[][] codes = {
-        { "0", "<span style=\'color:#000000\'>" },
-        { "1", "<span style=\'color:#0000AA\'>" },
-        { "2", "<span style=\'color:#00AA00\'>" },
-        { "3", "<span style=\'color:#00AAAA\'>" },
-        { "4", "<span style=\'color:#AA0000\'>" },
-        { "5", "<span style=\'color:#AA00AA\'>" },
-        { "6", "<span style=\'color:#FFAA00\'>" },
-        { "7", "<span style=\'color:#AAAAAA\'>" },
-        { "8", "<span style=\'color:#555555\'>" },
-        { "9", "<span style=\'color:#5555FF\'>" },
-        { "a", "<span style=\'color:#55FF55\'>" },
-        { "b", "<span style=\'color:#55FFFF\'>" },
-        { "c", "<span style=\'color:#FF5555\'>" },
-        { "d", "<span style=\'color:#FF55FF\'>" },
-        { "e", "<span style=\'color:#FFFF55\'>" },
-        { "f", "<span style=\'color:#FFFFFF\'>" },
-        { "l", "<span style=\'font-weight:bold\'>" },
-        { "m", "<span style=\'text-decoration:line-through\'>" },
-        { "n", "<span style=\'text-decoration:underline\'>" },
-        { "o", "<span style=\'font-style:italic\'>" },
-        { "r", "<span style=\'font-style:normal,text-decoration:none,font-weight:normal\'>" }
+            { "0", "<span style=\'color:#000000\'>" },
+            { "1", "<span style=\'color:#0000AA\'>" },
+            { "2", "<span style=\'color:#00AA00\'>" },
+            { "3", "<span style=\'color:#00AAAA\'>" },
+            { "4", "<span style=\'color:#AA0000\'>" },
+            { "5", "<span style=\'color:#AA00AA\'>" },
+            { "6", "<span style=\'color:#FFAA00\'>" },
+            { "7", "<span style=\'color:#AAAAAA\'>" },
+            { "8", "<span style=\'color:#555555\'>" },
+            { "9", "<span style=\'color:#5555FF\'>" },
+            { "a", "<span style=\'color:#55FF55\'>" },
+            { "b", "<span style=\'color:#55FFFF\'>" },
+            { "c", "<span style=\'color:#FF5555\'>" },
+            { "d", "<span style=\'color:#FF55FF\'>" },
+            { "e", "<span style=\'color:#FFFF55\'>" },
+            { "f", "<span style=\'color:#FFFFFF\'>" },
+            { "l", "<span style=\'font-weight:bold\'>" },
+            { "m", "<span style=\'text-decoration:line-through\'>" },
+            { "n", "<span style=\'text-decoration:underline\'>" },
+            { "o", "<span style=\'font-style:italic\'>" },
+            { "r", "<span style=\'font-style:normal,text-decoration:none,font-weight:normal\'>" }
     };
     private static Random rnd = new Random();
     private static String rndchars = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -223,6 +223,26 @@ public class Client {
                     if (codes[j][0].charAt(0) == c) {   // Matching code?
                         sb.append(codes[j][1]); // Substitute
                         spancnt++;
+                        break;
+                    }
+                    else if (c == 'x') { // Essentials nickname hexcode format
+                        if (i + 12 <= cnt){ // Check if string is at least long enough to be valid hexcode
+                            if (s.charAt(i+1) == s.charAt(i+3) &&
+                                    s.charAt(i+1) == s.charAt(i+5) &&
+                                    s.charAt(i+1) == s.charAt(i+7) &&
+                                    s.charAt(i+1) == s.charAt(i+9) &&
+                                    s.charAt(i+1) == s.charAt(i+11) && // Check if there are enough \u00A7 in a row
+                                    s.charAt(i+1) == '\u00A7'){
+                                StringBuilder hex = new StringBuilder().append(s.charAt(i+2))
+                                        .append(s.charAt(i+4))
+                                        .append(s.charAt(i+6))
+                                        .append(s.charAt(i+8))
+                                        .append(s.charAt(i+10))
+                                        .append(s.charAt(i+12)); // Build hexcode string
+                                sb.append("<span style=\'color:#" + hex + "\'>"); // Substitute with hexcode
+                                i = i + 12; //move past hex codes
+                            }
+                        }
                         break;
                     }
                 }
@@ -262,7 +282,7 @@ public class Client {
         return sanitizeHTML(sb.toString());
     }
 
-    private static PolicyFactory sanitizer = null; 
+    private static PolicyFactory sanitizer = null;
     public static String sanitizeHTML(String html) {
         PolicyFactory s = sanitizer;
         if (s == null) {

@@ -1,5 +1,8 @@
 package org.dynmap;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
 import org.dynmap.MapType.ImageFormat;
 import org.dynmap.common.DynmapListenerManager.EventType;
 import org.dynmap.common.DynmapListenerManager.PlayerEventListener;
@@ -9,15 +12,24 @@ import org.dynmap.storage.MapStorage;
 import org.dynmap.utils.BufferOutputStream;
 import org.dynmap.utils.DynmapBufferedImage;
 import org.dynmap.utils.ImageIOManager;
+import org.json.simple.JSONObject;
+import org.json.simple.JSONValue;
+import org.json.simple.parser.ParseException;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.UUID;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Listen for player logins, and process player faces by fetching skins *
@@ -131,7 +143,7 @@ public class PlayerFaces {
 
                     if (mSkinUrlProvider == null) {
                         if (!skinurl.equals("")) {
-                            url = new URL(skinurl.replace("%player%", URLEncoder.encode(playername, "UTF-8")));
+                            url = new URL(skinurl.replace("%player%", URLEncoder.encode(getOnlineUUID(playername), "UTF-8")));
                         } else if (playerskinurl != null) {
                             url = new URL(playerskinurl);
                         }
@@ -309,4 +321,60 @@ public class PlayerFaces {
         });
         storage = core.getDefaultMapStorage();
     }
+
+    private static final Cache<String, String> uuidCache = CacheBuilder.newBuilder()
+            .expireAfterWrite(8, TimeUnit.HOURS)
+            .maximumSize(1024)
+            .build();
+
+    public static String getOnlineUUID(String name) {
+        String onlineUUID = fetchOnlineUUID(name);
+        if (onlineUUID == null) {
+            return "null";
+        }
+        try {
+            return uuidCache.get(name, () -> onlineUUID);
+        }
+        catch (ExecutionException ex) { // shouldn't throw, but add a backup anyways
+            return onlineUUID;
+        }
+    }
+
+    public static String fetchOnlineUUID(String username) {
+        String request = getRequest("https://api.mojang.com/users/profiles/minecraft/" + username);
+        JSONObject UUIDObject;
+        try {
+            UUIDObject = (JSONObject) JSONValue.parseWithException(request);
+        }
+        catch (ParseException ex) {
+            return null;
+        }
+
+        return UUIDObject.get("id").toString();
+    }
+
+    public static String getRequest(String url) {
+        try {
+            URL site = new URL(url);
+            HttpURLConnection connection = (HttpURLConnection) site.openConnection();
+            connection.setRequestMethod("GET");
+            connection.connect();
+
+            InputStream input = connection.getInputStream();
+            BufferedReader reader = new BufferedReader(new InputStreamReader(input , StandardCharsets.UTF_8));
+            String line;
+            StringBuilder buffer = new StringBuilder();
+            while ((line = reader.readLine()) != null) {
+                buffer.append(line.trim());
+            }
+            reader.close();
+            connection.disconnect();
+            return buffer.toString();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
 }

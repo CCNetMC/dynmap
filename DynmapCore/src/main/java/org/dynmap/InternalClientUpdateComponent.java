@@ -81,7 +81,7 @@ public class InternalClientUpdateComponent extends ClientUpdateComponent {
             }};
             dcore.addServlet("/up/sendmessage", messageHandler);
         }
-        core.getServer().scheduleServerTask(new Runnable() {
+        core.getServer().scheduleAsyncServerTask(new Runnable() {
             @Override
             public void run() {
                 currentTimestamp = System.currentTimeMillis();

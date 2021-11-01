@@ -145,7 +145,7 @@ public class JsonFileClientUpdateComponent extends ClientUpdateComponent {
         /* Generate our config.js file */
         generateConfigJS(core);
         
-        core.getServer().scheduleServerTask(new Runnable() {
+        core.getServer().scheduleAsyncServerTask(new Runnable() {
             @Override
             public void run() {
                 currentTimestamp = System.currentTimeMillis();
@@ -159,7 +159,7 @@ public class JsonFileClientUpdateComponent extends ClientUpdateComponent {
                 if(core.isLoginSupportEnabled())
                     handleRegister();
                 lastTimestamp = currentTimestamp;
-                core.getServer().scheduleServerTask(this, jsonInterval/50);
+                core.getServer().scheduleAsyncServerTask(this, jsonInterval/50);
             }}, jsonInterval/50);
         
         core.events.addListener("buildclientconfiguration", new Event.Listener<JSONObject>() {

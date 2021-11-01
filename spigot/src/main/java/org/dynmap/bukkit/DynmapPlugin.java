@@ -264,6 +264,12 @@ public class DynmapPlugin extends JavaPlugin implements DynmapAPI {
         public void scheduleServerTask(Runnable run, long delay) {
             getServer().getScheduler().scheduleSyncDelayedTask(DynmapPlugin.this, run, delay);
         }
+
+        @Override
+        public void scheduleAsyncServerTask(Runnable run, long delay) {
+            getServer().getScheduler().scheduleAsyncDelayedTask(DynmapPlugin.this, run, delay);
+        }
+
         @Override
         public DynmapPlayer[] getOnlinePlayers() {
             Player[] players = helper.getOnlinePlayers();

@@ -25,6 +25,14 @@ public abstract class DynmapServerInterface {
      * @param delay - delay in server ticks (50msec)
      */
     public abstract void scheduleServerTask(Runnable run, long delay);
+
+    /**
+     * Schedule task to run asynchronously
+     * @param run - runnable method
+     * @param delay - delay in server ticks (50msec)
+     */
+    public abstract void scheduleAsyncServerTask(Runnable run, long delay);
+
     /**
      * Call method on server-safe thread
      * @param task - Callable method

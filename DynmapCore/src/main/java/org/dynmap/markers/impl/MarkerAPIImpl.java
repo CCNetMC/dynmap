@@ -357,7 +357,7 @@ public class MarkerAPIImpl implements MarkerAPI, Event.Listener<DynmapWorld> {
             } finally {
                 lock.readLock().unlock();
             }
-            core.getServer().scheduleServerTask(this, 20);
+            core.getServer().scheduleAsyncServerTask(this, 20);
         }
     }
 

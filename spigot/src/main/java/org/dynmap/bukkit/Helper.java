@@ -6,6 +6,7 @@ import org.dynmap.bukkit.helper.BukkitVersionHelper;
 import org.dynmap.bukkit.helper.BukkitVersionHelperCB;
 import org.dynmap.bukkit.helper.BukkitVersionHelperGlowstone;
 import org.dynmap.bukkit.helper.v117.BukkitVersionHelperSpigot117;
+import org.dynmap.bukkit.helper.v118.BukkitVersionHelperSpigot118;
 
 public class Helper {
 
@@ -30,6 +31,9 @@ public class Helper {
             else if(Bukkit.getServer().getClass().getName().contains("GlowServer")) {
                 Log.info("Loading Glowstone support");
                 BukkitVersionHelper.helper = new BukkitVersionHelperGlowstone();
+            }
+            else if (v.contains("(MC: 1.18")) {
+            	BukkitVersionHelper.helper = new BukkitVersionHelperSpigot118();
             }
             else if (v.contains("(MC: 1.17")) {
                 BukkitVersionHelper.helper = new BukkitVersionHelperSpigot117();

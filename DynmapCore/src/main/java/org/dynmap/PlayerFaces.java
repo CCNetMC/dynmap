@@ -120,10 +120,12 @@ public class PlayerFaces {
     private class LoadPlayerImages implements Runnable {
         private SkinUrlProvider mSkinUrlProvider;
         public final String playername;
+        public final UUID playeruuid;
         public final String playerskinurl;
 
         public LoadPlayerImages(String playername, String playerskinurl, UUID playeruuid, SkinUrlProvider skinUrlProvider) {
             this.playername = playername;
+            this.playeruuid = playeruuid;
             this.playerskinurl = playerskinurl;
             mSkinUrlProvider = skinUrlProvider;
         }

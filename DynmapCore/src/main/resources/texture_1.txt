@@ -88,6 +88,7 @@ texture:id=dropper_front
 texture:id=dropper_front_vertical
 texture:id=hopper_inside
 texture:id=hopper_outside
+texture:id=smooth_stone
 texture:id=black_terracotta
 texture:id=blue_terracotta
 texture:id=brown_terracotta
@@ -190,7 +191,7 @@ texture:id=detector_rail_on
 texture:id=detector_rail
 texture:id=piston_bottom
 texture:id=piston_inner
-texture:id=piston_side
+texture:id=piston_side,format=CUSTOM,tile0=0:0/16:16/0:0,tile1=0:0/12:4/4:6,tile2=12:0/4:4/0:6,xcount=1,ycount=1
 texture:id=piston_top
 texture:id=piston_top_sticky
 texture:id=dandelion
@@ -813,12 +814,12 @@ block:id=tall_seagrass,data=0,patch0-3=1000:tall_seagrass_top,transparency=TRANS
 block:id=tall_seagrass,data=1,patch0-3=1000:tall_seagrass_bottom,transparency=TRANSPARENT
 
 #  Piston
-block:id=piston,patch0=0:piston_bottom,patch1=0:piston_top,patch2=0:piston_side,patch3=0:piston_inner
+block:id=piston,patch0=0:piston_bottom,patch1=0:piston_top,patch2=0:piston_side,patch3=0:piston_inner,patch4=6002:piston_side
 # Sticky piston
-block:id=sticky_piston,patch0=0:piston_bottom,patch1=0:piston_top_sticky,patch2=0:piston_side,patch3=0:piston_inner
+block:id=sticky_piston,patch0=0:piston_bottom,patch1=0:piston_top_sticky,patch2=0:piston_side,patch3=0:piston_inner,patch4=6002:piston_side
 # Piston head
-block:id=piston_head,data=0,data=2,data=4,data=6,data=8,data=10,data=12,data=14,data=16,data=18,data=20,data=22,patch0=0:piston_bottom,patch1=0:piston_top,patch2=0:piston_side,patch3=0:piston_inner,transparency=TRANSPARENT
-block:id=piston_head,data=1,data=3,data=5,data=7,data=9,data=11,data=13,data=15,data=17,data=19,data=21,data=23,patch0=0:piston_bottom,patch1=0:piston_top_sticky,patch2=0:piston_side,patch3=0:piston_inner,transparency=TRANSPARENT
+block:id=piston_head,data=0,data=2,data=4,data=6,data=8,data=10,data=12,data=14,data=16,data=18,data=20,data=22,patch0=0:piston_bottom,patch1=0:piston_top,patch2=0:piston_side,patch3=0:piston_inner,patch4=6001:piston_side,transparency=TRANSPARENT
+block:id=piston_head,data=1,data=3,data=5,data=7,data=9,data=11,data=13,data=15,data=17,data=19,data=21,data=23,patch0=0:piston_bottom,patch1=0:piston_top_sticky,patch2=0:piston_side,patch3=0:piston_inner,patch4=6001:piston_side,transparency=TRANSPARENT
 # Moving piston (don't show)
 block:id=moving_piston
 # Wool
@@ -895,7 +896,7 @@ block:id=diamond_ore,allfaces=0:diamond_ore,stdrot=true
 # Diamond block
 block:id=diamond_block,allfaces=0:diamond_block,stdrot=true
 # Crafting table
-block:id=crafting_table,topbottom=0:crafting_table_top,east=0:crafting_table_front,west=0:crafting_table_front,north=0:crafting_table_side,south=0:crafting_table_side,stdrot=true
+block:id=crafting_table,face0-1=0:crafting_table_top,face2=0:crafting_table_front,face3=0:crafting_table_side,face4=0:crafting_table_front,face5=0:crafting_table_side,stdrot=true
 # Crops (size 1)
 block:id=wheat,data=0,patch0-3=0:wheat_stage0,transparency=TRANSPARENT
 # Crops (size 2)
@@ -916,22 +917,22 @@ block:id=wheat,data=7,patch0-3=0:wheat_stage7,transparency=TRANSPARENT
 block:id=farmland,data=0,top=0:farmland,allsides=0:dirt,bottom=0:dirt,stdrot=true
 # Farmland (wet)
 block:id=farmland,data=1,data=2,data=3,data=4,data=5,data=6,data=7,top=0:farmland_moist,allsides=0:dirt,bottom=0:dirt,stdrot=true
-# Furnace (facing east)
-block:id=furnace,data=1,top=0:furnace_top,east=0:furnace_front,south=0:furnace_side,north=0:furnace_side,west=0:furnace_side,bottom=0:furnace_top,stdrot=true
-# Furnace (facing west)
-block:id=furnace,data=3,top=0:furnace_top,west=0:furnace_front,south=0:furnace_side,north=0:furnace_side,east=0:furnace_side,bottom=0:furnace_top,stdrot=true
 # Furnace (facing north)
-block:id=furnace,data=5,top=0:furnace_top,north=0:furnace_front,south=0:furnace_side,east=0:furnace_side,west=0:furnace_side,bottom=0:furnace_top,stdrot=true
+block:id=furnace,data=1,face0-1=0:furnace_top,face2=0:furnace_front,face3-5=0:furnace_side,stdrot=true
 # Furnace (facing south)
-block:id=furnace,data=7,top=0:furnace_top,south=0:furnace_front,north=0:furnace_side,east=0:furnace_side,west=0:furnace_side,bottom=0:furnace_top,stdrot=true
-# Burning Furnace (facing east)
-block:id=furnace,data=0,top=0:furnace_top,east=0:furnace_front_on,south=0:furnace_side,north=0:furnace_side,west=0:furnace_side,bottom=0:furnace_top,stdrot=true
-# Burning Furnace (facing west)
-block:id=furnace,data=2,top=0:furnace_top,west=0:furnace_front_on,south=0:furnace_side,north=0:furnace_side,east=0:furnace_side,bottom=0:furnace_top,stdrot=true
+block:id=furnace,data=3,face0-1=5000:furnace_top,face3=0:furnace_front,face2=0:furnace_side,face4-5=0:furnace_side,stdrot=true
+# Furnace (facing west)
+block:id=furnace,data=5,face0-1=4000:furnace_top,face4=0:furnace_front,face2-3=0:furnace_side,face5=0:furnace_side,west=0:furnace_side,stdrot=true
+# Furnace (facing east)
+block:id=furnace,data=7,face0-1=6000:furnace_top,face5=0:furnace_front,face2-4=0:furnace_side,stdrot=true
 # Burning Furnace (facing north)
-block:id=furnace,data=4,top=0:furnace_top,north=0:furnace_front_on,south=0:furnace_side,east=0:furnace_side,west=0:furnace_side,bottom=0:furnace_top,stdrot=true
+block:id=furnace,data=0,face0-1=0:furnace_top,face2=0:furnace_front_on,face3-5=0:furnace_side,stdrot=true
+# Burning Furnace (facing west)
+block:id=furnace,data=2,face0-1=5000:furnace_top,face3=0:furnace_front_on,face2=0:furnace_side,face4-5=0:furnace_side,stdrot=true
+# Burning Furnace (facing east)
+block:id=furnace,data=4,face0-1=4000:furnace_top,face4=0:furnace_front_on,face2-3=0:furnace_side,face5=0:furnace_side,stdrot=true
 # Burning Furnace (facing south)
-block:id=furnace,data=6,top=0:furnace_top,south=0:furnace_front_on,north=0:furnace_side,east=0:furnace_side,west=0:furnace_side,bottom=0:furnace_top,stdrot=true
+block:id=furnace,data=6,face0-1=6000:furnace_top,face5=0:furnace_front_on,face2-4=0:furnace_side,stdrot=true
 # Oak Door
 block:id=oak_door,data=*,patch0=0:oak_door_top,patch1=0:oak_door_bottom,transparency=TRANSPARENT
 # Ladder
@@ -1015,22 +1016,22 @@ block:id=soul_sand,allfaces=0:soul_sand,stdrot=true
 block:id=glowstone,allfaces=0:glowstone,stdrot=true
 # Nether Portal
 block:id=nether_portal,allfaces=0:nether_portal,stdrot=true,transparency=TRANSPARENT
-# Carved Pumpkin (west)
-block:id=carved_pumpkin,data=0,north=0:pumpkin_side,south=0:pumpkin_side,east=0:pumpkin_side,west=0:carved_pumpkin,topbottom=0:pumpkin_top,stdrot=true
 # Carved Pumpkin (north)
-block:id=carved_pumpkin,data=1,north=0:carved_pumpkin,south=0:pumpkin_side,east=0:pumpkin_side,west=0:pumpkin_side,topbottom=0:pumpkin_top,stdrot=true
-# Carved Pumpkin (east)
-block:id=carved_pumpkin,data=2,north=0:pumpkin_side,south=0:pumpkin_side,east=0:carved_pumpkin,west=0:pumpkin_side,topbottom=0:pumpkin_top,stdrot=true
+block:id=carved_pumpkin,data=0,face2=0:carved_pumpkin,face3=0:pumpkin_side,face4=0:pumpkin_side,face5=0:pumpkin_side,topbottom=0:pumpkin_top,stdrot=true
 # Carved Pumpkin (south)
-block:id=carved_pumpkin,data=3,north=0:pumpkin_side,south=0:carved_pumpkin,east=0:pumpkin_side,west=0:pumpkin_side,topbottom=0:pumpkin_top,stdrot=true
-# Jack-O-Lantern (west)
-block:id=jack_o_lantern,data=0,north=0:pumpkin_side,south=0:pumpkin_side,east=0:pumpkin_side,west=0:jack_o_lantern,topbottom=0:pumpkin_top,stdrot=true
+block:id=carved_pumpkin,data=1,face3=0:carved_pumpkin,face2=0:pumpkin_side,face4=0:pumpkin_side,face5=0:pumpkin_side,topbottom=5000:pumpkin_top,stdrot=true
+# Carved Pumpkin (west)
+block:id=carved_pumpkin,data=2,face4=0:carved_pumpkin,face2=0:pumpkin_side,face3=0:pumpkin_side,face5=0:pumpkin_side,topbottom=4000:pumpkin_top,stdrot=true
+# Carved Pumpkin (east)
+block:id=carved_pumpkin,data=3,face5=0:carved_pumpkin,face2=0:pumpkin_side,face3=0:pumpkin_side,face4=0:pumpkin_side,topbottom=6000:pumpkin_top,stdrot=true
 # Jack-O-Lantern (north)
-block:id=jack_o_lantern,data=1,north=0:jack_o_lantern,south=0:pumpkin_side,east=0:pumpkin_side,west=0:pumpkin_side,topbottom=0:pumpkin_top,stdrot=true
-# Jack-O-Lantern (east)
-block:id=jack_o_lantern,data=2,north=0:pumpkin_side,south=0:pumpkin_side,east=0:jack_o_lantern,west=0:pumpkin_side,topbottom=0:pumpkin_top,stdrot=true
+block:id=jack_o_lantern,data=0,face2=0:jack_o_lantern,face3=0:pumpkin_side,face4=0:pumpkin_side,face5=0:pumpkin_side,topbottom=0:pumpkin_top,stdrot=true
 # Jack-O-Lantern (south)
-block:id=jack_o_lantern,data=3,north=0:pumpkin_side,south=0:jack_o_lantern,east=0:pumpkin_side,west=0:pumpkin_side,topbottom=0:pumpkin_top,stdrot=true
+block:id=jack_o_lantern,data=1,face3=0:jack_o_lantern,face2=0:pumpkin_side,face4=0:pumpkin_side,face5=0:pumpkin_side,topbottom=5000:pumpkin_top,stdrot=true
+# Jack-O-Lantern (west)
+block:id=jack_o_lantern,data=2,face4=0:jack_o_lantern,face2=0:pumpkin_side,face3=0:pumpkin_side,face5=0:pumpkin_side,topbottom=4000:pumpkin_top,stdrot=true
+# Jack-O-Lantern (east)
+block:id=jack_o_lantern,data=3,face5=0:jack_o_lantern,face2=0:pumpkin_side,face3=0:pumpkin_side,face4=0:pumpkin_side,topbottom=6000:pumpkin_top,stdrot=true
 # Cake Block
 block:id=cake,allsides=0:cake_side,top=0:cake_top,bottom=0:cake_bottom,stdrot=true,transparency=TRANSPARENT
 # Repeater (on) facing east
@@ -1152,11 +1153,9 @@ block:id=brewing_stand,patch0=0:brewing_stand_base,patch1-7=0:brewing_stand,tran
 # Cauldron
 block:id=cauldron,data=*,top=0:cauldron_top,bottom=0:cauldron_bottom,allsides=0:cauldron_side,stdrot=true,transparency=TRANSPARENT
 # End portal
-block:id=end_portal,data=*,topbottom=0:endportal,stdrot=true
-# End portal frame (no eye)
-block:id=end_portal_frame,data=0,data=1,data=2,data=3,top=0:end_portal_frame_top,allsides=0:end_portal_frame_side,bottom=0:end_stone,stdrot=true
-# End portal fram (eye installed) (TODO: eye installed)
-block:id=end_portal_frame,data=4,data=5,data=6,data=7,top=0:end_portal_frame_eye,allsides=0:end_portal_frame_side,bottom=0:end_stone,stdrot=true
+block:id=end_portal,data=*,patch0=0:endportal,stdrot=true
+# End portal frame
+block:id=end_portal_frame,data=*,patch0=0:end_stone,patch1=0:end_portal_frame_top,patch2=0:end_portal_frame_side,patch3=0:end_portal_frame_eye
 # End stone
 block:id=end_stone,allfaces=0:end_stone,stdrot=true
 # Dragon Egg
@@ -1360,16 +1359,8 @@ block:id=light_weighted_pressure_plate,allfaces=0:gold_block,stdrot=true,transpa
 # Heavy weighted pressure plate
 block:id=heavy_weighted_pressure_plate,allfaces=0:iron_block,stdrot=true,transparency=TRANSPARENT
 
-# Redstone Comparator (active)
-block:id=comparator,data=0,data=2,top=6000:comparator_on,allsides=0:stone,bottom=0:stone,transparency=TRANSPARENT
-block:id=comparator,data=4,data=6,top=5000:comparator_on,allsides=0:stone,bottom=0:stone,transparency=TRANSPARENT
-block:id=comparator,data=8,data=10,top=4000:comparator_on,allsides=0:stone,bottom=0:stone,transparency=TRANSPARENT
-block:id=comparator,data=12,data=14,top=0:comparator_on,allsides=0:stone,bottom=0:stone,transparency=TRANSPARENT
-# Redstone Comparator (inactive)
-block:id=comparator,data=1,data=3,top=6000:comparator,allsides=0:stone,bottom=0:stone,transparency=TRANSPARENT
-block:id=comparator,data=5,data=7,top=5000:comparator,allsides=0:stone,bottom=0:stone,transparency=TRANSPARENT
-block:id=comparator,data=9,data=11,top=4000:comparator,allsides=0:stone,bottom=0:stone,transparency=TRANSPARENT
-block:id=comparator,data=13,data=15,top=0:comparator,allsides=0:stone,bottom=0:stone,transparency=TRANSPARENT
+# Comparator (on)
+block:id=comparator,data=*,patch0=0:smooth_stone,patch1=0:comparator,patch2=0:redstone_torch_off,patch3=0:redstone_torch,patch4=0:comparator_on,transparency=TRANSPARENT
 
 # Daylight Sensor
 # Inverted Daylight Sensor
@@ -2134,7 +2125,6 @@ block:id=black_banner,id=black_wall_banner,data=*,patch0=0:oak_planks,patch1=0:b
 [1.14-]texture:id=wither_rose
 [1.14-]texture:id=lily_of_the_valley
 [1.14-]texture:id=smooth_stone_slab_side
-[1.14-]texture:id=smooth_stone
 [1.14-]texture:id=bamboo_stage0
 [1.14-]texture:id=bamboo_stalk
 [1.14-]texture:id=scaffolding_top
@@ -2143,6 +2133,8 @@ block:id=black_banner,id=black_wall_banner,data=*,patch0=0:oak_planks,patch1=0:b
 [1.14-]texture:id=composter_top
 [1.14-]texture:id=composter_side
 [1.14-]texture:id=composter_bottom
+[1.14-]texture:id=composter_compost
+[1.14-]texture:id=composter_ready
 [1.14-]texture:id=jigsaw_bottom
 [1.14-]texture:id=jigsaw_side
 [1.14-]texture:id=jigsaw_top
@@ -2174,9 +2166,9 @@ block:id=black_banner,id=black_wall_banner,data=*,patch0=0:oak_planks,patch1=0:b
 [1.14-]texture:id=sweet_berry_bush_stage1
 [1.14-]texture:id=sweet_berry_bush_stage2
 [1.14-]texture:id=sweet_berry_bush_stage3
-[1.14-]texture:id=grindstone_pivot
-[1.14-]texture:id=grindstone_round
-[1.14-]texture:id=grindstone_side
+[1.14-]texture:id=grindstone_pivot,format=CUSTOM,tile0=0:0/10:6:3:5,tile1=0:0/10:6:4:5,xcount=1,ycount=1
+[1.14-]texture:id=grindstone_round,format=CUSTOM,tile0=0:0/8:12/4:0,tile1=0:0/8:12/4:2,xcount=1,ycount=1
+[1.14-]texture:id=grindstone_side,format=CUSTOM,tile0=0:0/12:12/2:0,xcount=1,ycount=1
 [1.14-]texture:id=lectern_base
 [1.14-]texture:id=lectern_front
 [1.14-]texture:id=lectern_sides
@@ -2194,9 +2186,9 @@ block:id=black_banner,id=black_wall_banner,data=*,patch0=0:oak_planks,patch1=0:b
 [1.14-]texture:id=campfire_log
 [1.14-]texture:id=campfire_log_lit
 [1.14-]texture:id=campfire_fire
-[1.14-]texture:id=bell_top
-[1.14-]texture:id=bell_side
-[1.14-]texture:id=bell_bottom
+[1.14-]texture:id=bell_top,format=CUSTOM,tile0=0:0/8:8/4:4,xcount=1,ycount=1
+[1.14-]texture:id=bell_side,format=CUSTOM,tile0=0:0/8:9/4:3,xcount=1,ycount=1
+[1.14-]texture:id=bell_bottom,format=CUSTOM,tile0=0:0/8:8/4:4,xcount=1,ycount=1
 
 # Signpost
 [1.14-]block:id=oak_sign,patch0=0,patch1=1,patch2=2,patch3=3,patch4=4,patch5=5,patch6=6,patch7=7,patch8=8,patch9=9,transparency=TRANSPARENT,txtid=oak_sign
@@ -2333,7 +2325,7 @@ block:id=black_banner,id=black_wall_banner,data=*,patch0=0:oak_planks,patch1=0:b
 # Scaffolding
 [1.14-]block:id=scaffolding,patch0=0:scaffolding_top,patch1=0:scaffolding_side,patch2=0:scaffolding_bottom,transparency=TRANSPARENT
 # Composter
-[1.14-]block:id=composter,patch0=0:composter_top,patch1=0:composter_bottom,patch2=0:composter_side,patch3=0:composter_bottom,transparency=TRANSPARENT
+[1.14-]block:id=composter,patch0=0:composter_top,patch1=0:composter_bottom,patch2=0:composter_side,patch3=0:composter_bottom,patch4=0:composter_compost,patch5=0:composter_ready,transparency=TRANSPARENT
 # Jigsaw
 [1.14-]block:id=jigsaw,patch0=0:jigsaw_bottom,patch1=0:jigsaw_top,patch2=0:jigsaw_side
 # Loom
@@ -2357,7 +2349,7 @@ block:id=black_banner,id=black_wall_banner,data=*,patch0=0:oak_planks,patch1=0:b
 [1.14-]block:id=sweet_berry_bush,data=2,patch0-1=0:sweet_berry_bush_stage2,transparency=TRANSPARENT
 [1.14-]block:id=sweet_berry_bush,data=3,patch0-1=0:sweet_berry_bush_stage3,transparency=TRANSPARENT
 # Grindstone
-[1.14-]block:id=grindstone,patch0=0:grindstone_pivot,patch1=0:grindstone_round,patch2=0:grindstone_side,patch4=0:dark_oak_log,transparency=TRANSPARENT
+[1.14-]block:id=grindstone,patch0=6000:grindstone_pivot,patch1=0:grindstone_round,patch2=0:grindstone_side,patch4=0:dark_oak_log,patch5=1:grindstone_round,patch6=6001:grindstone_pivot,transparency=TRANSPARENT
 # Lectern
 [1.14-]block:id=lectern,patch0=0:oak_planks,patch1=0:lectern_base,patch2=0:lectern_front,patch3=0:lectern_sides,patch4=0:lectern_top,transparency=TRANSPARENT
 # Lantern
@@ -2369,7 +2361,7 @@ block:id=black_banner,id=black_wall_banner,data=*,patch0=0:oak_planks,patch1=0:b
 # Campfire
 [1.14-]block:id=campfire,patch0=0:campfire_log,patch1=0:campfire_log_lit,patch2=0:campfire_fire,transparency=TRANSPARENT
 # Bell
-[1.14-]block:id=bell,patch0=0:dark_oak_planks,patch1=0:stone,patch2=0:bell_top,patch3=0:bell_bottom,patch4=0:bell_side,transparency=TRANSPARENT
+[1.14-]block:id=bell,patch0=0:dark_oak_planks,patch1=0:stone,patch2=0:bell_bottom,patch3=0:bell_top,patch4=0:bell_side,transparency=TRANSPARENT
 
 # 1.15 resources
 [1.15-]texture:id=bee_nest_bottom

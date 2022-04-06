@@ -1,10 +1,11 @@
-package org.dynmap.storage.postgresql;
+package org.dynmap.storage.mssql;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.sql.Connection;
+import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -23,21 +24,20 @@ import org.dynmap.WebAuthManager;
 import org.dynmap.MapType.ImageVariant;
 import org.dynmap.PlayerFaces.FaceType;
 import org.dynmap.storage.MapStorage;
-import org.dynmap.storage.MapStorageBaseTileEnumCB;
 import org.dynmap.storage.MapStorageTile;
 import org.dynmap.storage.MapStorageTileEnumCB;
+import org.dynmap.storage.MapStorageBaseTileEnumCB;
 import org.dynmap.storage.MapStorageTileSearchEndCB;
 import org.dynmap.utils.BufferInputStream;
 import org.dynmap.utils.BufferOutputStream;
 
-public class PostgreSQLMapStorage extends MapStorage {
-    private String connectionString;
+public class MicrosoftSQLMapStorage extends MapStorage {
     private String userid;
     private String password;
-    private String database;
-    private String hostname;
+    protected String database;
+    protected String hostname;
     private String prefix = "";
-    private String flags;
+    protected String flags;
     private String tableTiles;
     private String tableMaps;
     private String tableFaces;
@@ -46,14 +46,12 @@ public class PostgreSQLMapStorage extends MapStorage {
     private String tableStandaloneFiles;
     private String tableSchemaVersion;
 
-    private int port;
+    protected int port;
     private static final int POOLSIZE = 5;
     private Connection[] cpool = new Connection[POOLSIZE];
     private int cpoolCount = 0;
     private static final Charset UTF8 = Charset.forName("UTF-8");
-
-    private HashMap<String, Integer> mapKey = new HashMap<String, Integer>();
-
+        
     public class StorageTile extends MapStorageTile {
         private Integer mapkey;
         private String uri;
@@ -205,22 +203,22 @@ public class PostgreSQLMapStorage extends MapStorage {
 
         @Override
         public boolean getWriteLock() {
-            return PostgreSQLMapStorage.this.getWriteLock(uri);
+            return MicrosoftSQLMapStorage.this.getWriteLock(uri);
         }
 
         @Override
         public void releaseWriteLock() {
-            PostgreSQLMapStorage.this.releaseWriteLock(uri);
+            MicrosoftSQLMapStorage.this.releaseWriteLock(uri);
         }
 
         @Override
         public boolean getReadLock(long timeout) {
-            return PostgreSQLMapStorage.this.getReadLock(uri, timeout);
+            return MicrosoftSQLMapStorage.this.getReadLock(uri, timeout);
         }
 
         @Override
         public void releaseReadLock() {
-            PostgreSQLMapStorage.this.releaseReadLock(uri);
+            MicrosoftSQLMapStorage.this.releaseReadLock(uri);
         }
 
         @Override
@@ -268,10 +266,22 @@ public class PostgreSQLMapStorage extends MapStorage {
             return uri.hashCode();
         }
     }
-
-    public PostgreSQLMapStorage(){
+    
+    public MicrosoftSQLMapStorage() {
     }
 
+    // MySQL specific driver check
+    protected boolean checkDriver() {
+        connectionString = "jdbc:sqlserver://" + hostname + ":" + port + ";databaseName=" + database + flags;
+        Log.info("Opening Microsoft SQL database " + hostname + ":" + port + ";databaseName=" + database + " as map store");
+
+        if(!hasClass("com.microsoft.sqlserver.jdbc.SQLServerDriver")){
+            Log.severe("Microsoft SQL-JDBC classes not found - Microsoft SQL data source not usable");
+            return false;
+        }
+        return true;
+    }
+    
     @Override
     public boolean init(DynmapCore core) {
         if (!super.init(core)) {
@@ -279,11 +289,11 @@ public class PostgreSQLMapStorage extends MapStorage {
         }
         database = core.configuration.getString("storage/database", "dynmap");
         hostname = core.configuration.getString("storage/hostname", "localhost");
-        port = core.configuration.getInteger("storage/port", 5432);
+        port = core.configuration.getInteger("storage/port", 1433);
         userid = core.configuration.getString("storage/userid", "dynmap");
         password = core.configuration.getString("storage/password", "dynmap");
         prefix = core.configuration.getString("storage/prefix", "");
-        flags = core.configuration.getString("storage/flags", "?allowReconnect=true");
+        flags = core.configuration.getString("storage/flags", ";trustServerCertificate=true");
         tableTiles = prefix + "Tiles";
         tableMaps = prefix + "Maps";
         tableFaces = prefix + "Faces";
@@ -292,22 +302,26 @@ public class PostgreSQLMapStorage extends MapStorage {
         tableStandaloneFiles = prefix + "StandaloneFiles";
         tableSchemaVersion = prefix + "SchemaVersion";
         
-        connectionString = "jdbc:postgresql://" + hostname + ":" + port + "/" + database + flags;
-        Log.info("Opening PostgreSQL database " + hostname + ":" + port + "/" + database + " as map store");
-        try {
-            Class.forName("org.dynmap.org.postgresql.Driver");	// Use shaded name for our bundled driver
-            // Initialize/update tables, if needed
-            if(!initializeTables()) {
-                return false;
-            }
-        } catch (ClassNotFoundException cnfx) {
-            Log.severe("PostgreSQL-JDBC classes not found - PostgreSQL data source not usable");
-            return false; 
+        if (!checkDriver()) return false;
+        
+        // Initialize/update tables, if needed
+        if(!initializeTables()) {
+            return false;
         }
         return writeConfigPHP(core);
     }
+
+    private boolean hasClass(String classname){
+        try{
+            Class.forName(classname);
+            return true;
+        } catch (ClassNotFoundException cnfx){
+            return false;
+        }
+    }
+
     private boolean writeConfigPHP(DynmapCore core) {
-    	File cfgfile = new File(baseStandaloneDir, "PostgreSQL_config.php");
+    	File cfgfile = new File(baseStandaloneDir, "MSSQL_config.php");
     	if (!core.isInternalWebServerDisabled) {	// If using internal server
     		cfgfile.delete();	// Zap file (in case we left junk from last time)
     		return true;
@@ -341,7 +355,7 @@ public class PostgreSQLMapStorage extends MapStorage {
             fw.write(core.isLoginSupportEnabled()?"true;\n":"false;\n");
             fw.write("?>\n");
         } catch (IOException iox) {
-            Log.severe("Error writing PostgreSQL_config.php", iox);
+            Log.severe("Error writing MSSQL_config.php", iox);
             return false; 
         } finally {
             if (fw != null) {
@@ -350,13 +364,14 @@ public class PostgreSQLMapStorage extends MapStorage {
         }
         return true;
     }
-
     private int getSchemaVersion() {
         int ver = 0;
         boolean err = false;
         Connection c = null;
         try {
             c = getConnection();    // Get connection (create DB if needed)
+        	DatabaseMetaData md = c.getMetaData();
+        	Log.info("Connected to " + md.getDatabaseProductName() + " v" + md.getDatabaseMajorVersion() + "." + md.getDatabaseMinorVersion());
             Statement stmt = c.createStatement();
             ResultSet rs = stmt.executeQuery( "SELECT level FROM " + tableSchemaVersion + ";");
             if (rs.next()) {
@@ -371,13 +386,15 @@ public class PostgreSQLMapStorage extends MapStorage {
         }
         return ver;
     }
-
+    
     private void doUpdate(Connection c, String sql) throws SQLException {
         Statement stmt = c.createStatement();
         stmt.executeUpdate(sql);
         stmt.close();
     }
-
+    
+    private HashMap<String, Integer> mapKey = new HashMap<String, Integer>();
+    
     private void doLoadMaps() {
         Connection c = null;
         boolean err = false;
@@ -408,7 +425,7 @@ public class PostgreSQLMapStorage extends MapStorage {
             c = null;
         }
     }
-
+    
     private Integer getMapKey(DynmapWorld w, MapType mt, ImageVariant var) {
         String id = w.getName() + ":" + mt.getPrefix() + ":" + var.toString();
         synchronized(mapKey) {
@@ -450,7 +467,7 @@ public class PostgreSQLMapStorage extends MapStorage {
             return k;
         }
     }
-
+    
     private boolean initializeTables() {
         Connection c = null;
         boolean err = false;
@@ -460,16 +477,16 @@ public class PostgreSQLMapStorage extends MapStorage {
             try {
             	Log.info("Initializing database schema");
                 c = getConnection();
-                doUpdate(c, "CREATE TABLE " + tableMaps + " (ID SERIAL PRIMARY KEY, WorldID VARCHAR(64) NOT NULL, MapID VARCHAR(64) NOT NULL, Variant VARCHAR(16) NOT NULL, ServerID BIGINT NOT NULL DEFAULT 0)");
-                doUpdate(c, "CREATE TABLE " + tableTiles + " (MapID INT NOT NULL, x INT NOT NULL, y INT NOT NULL, zoom INT NOT NULL, HashCode BIGINT NOT NULL, LastUpdate BIGINT NOT NULL, Format INT NOT NULL, Image BYTEA, PRIMARY KEY(MapID, x, y, zoom))");
-                doUpdate(c, "CREATE TABLE " + tableFaces + " (PlayerName VARCHAR(64) NOT NULL, TypeID INT NOT NULL, Image BYTEA, PRIMARY KEY(PlayerName, TypeID))");
-                doUpdate(c, "CREATE TABLE " + tableMarkerIcons + " (IconName VARCHAR(128) PRIMARY KEY NOT NULL, Image BYTEA)");
-                doUpdate(c, "CREATE TABLE " + tableMarkerFiles + " (FileName VARCHAR(128) PRIMARY KEY NOT NULL, Content BYTEA)");
-                doUpdate(c, "CREATE TABLE " + tableStandaloneFiles + " (FileName VARCHAR(128) NOT NULL, ServerID BIGINT NOT NULL DEFAULT 0, Content BYTEA, PRIMARY KEY (FileName, ServerID))");
+                doUpdate(c, "CREATE TABLE " + tableMaps + " (ID INTEGER IDENTITY(1,1) PRIMARY KEY, WorldID VARCHAR(64) NOT NULL, MapID VARCHAR(64) NOT NULL, Variant VARCHAR(16) NOT NULL, ServerID BIGINT NOT NULL DEFAULT 0)");
+                doUpdate(c, "CREATE TABLE " + tableTiles + " (MapID INT NOT NULL, x INT NOT NULL, y INT NOT NULL, zoom INT NOT NULL, HashCode BIGINT NOT NULL, LastUpdate BIGINT NOT NULL, Format INT NOT NULL, Image varbinary(MAX), PRIMARY KEY(MapID, x, y, zoom))");
+                doUpdate(c, "CREATE TABLE " + tableFaces + " (PlayerName VARCHAR(64) NOT NULL, TypeID INT NOT NULL, Image varbinary(MAX), PRIMARY KEY(PlayerName, TypeID))");
+                doUpdate(c, "CREATE TABLE " + tableMarkerIcons + " (IconName VARCHAR(128) PRIMARY KEY NOT NULL, Image varbinary(MAX))");
+                doUpdate(c, "CREATE TABLE " + tableMarkerFiles + " (FileName VARCHAR(128) PRIMARY KEY NOT NULL, Content varchar(MAX))");
+                doUpdate(c, "CREATE TABLE " + tableStandaloneFiles + " (FileName VARCHAR(128) NOT NULL, ServerID BIGINT NOT NULL DEFAULT 0, Content varchar(MAX), PRIMARY KEY (FileName, ServerID))");
                 doUpdate(c, "CREATE INDEX " + tableMaps + "_idx ON " + tableMaps + "(WorldID, MapID, Variant, ServerID)");  
                 doUpdate(c, "CREATE TABLE " + tableSchemaVersion + " (level INT PRIMARY KEY NOT NULL)");
-                doUpdate(c, "INSERT INTO " + tableSchemaVersion + " (level) VALUES (3)");
-                version = 4;	// initialzed to current schema
+                doUpdate(c, "INSERT INTO " + tableSchemaVersion + " (level) VALUES (6)");
+                version = 6;	// Initial - we have all the following updates already
             } catch (SQLException x) {
             	logSQLException("Error creating tables", x);
                 err = true;
@@ -479,56 +496,22 @@ public class PostgreSQLMapStorage extends MapStorage {
                 c = null;
             }
         }
-        if (version == 1) {
-            try {
-            	Log.info("Updating database schema from version = " + version);
-                c = getConnection();
-                doUpdate(c, "CREATE TABLE " + tableStandaloneFiles + " (FileName VARCHAR(128) NOT NULL, ServerID BIGINT NOT NULL DEFAULT 0, Content TEXT, PRIMARY KEY (FileName, ServerID))");
-                doUpdate(c, "ALTER TABLE " + tableMaps + " ADD COLUMN ServerID BIGINT NOT NULL DEFAULT 0 AFTER Variant");
-                doUpdate(c, "UPDATE " + tableSchemaVersion + " SET level=2 WHERE level = 1;");
-                version = 2;
-            } catch (SQLException x) {
-            	logSQLException("Error upgrading tables to version=2", x);
-                err = true;
-                return false;
-            } finally {
-                releaseConnection(c, err);
-                c = null;
-            }
-        }
-        if (version == 2) {
-            try {
-            	Log.info("Updating database schema from version = " + version);
-                c = getConnection();
-                doUpdate(c, "DELETE FROM " + tableStandaloneFiles + ";");
-                doUpdate(c, "ALTER TABLE " + tableStandaloneFiles + " DROP COLUMN Content;");
-                doUpdate(c, "ALTER TABLE " + tableStandaloneFiles + " ADD COLUMN Content BYTEA;");
-                doUpdate(c, "UPDATE " + tableSchemaVersion + " SET level=3 WHERE level = 2;");
-                version = 3;
-            } catch (SQLException x) {
-            	logSQLException("Error upgrading tables to version=3", x);
-                err = true;
-                return false;
-            } finally {
-                releaseConnection(c, err);
-                c = null;
-            }
-        }
-        if (version == 3) {
+        // Skip 1-5 - goofed up and released with 5 as initial version
+        if (version == 5) {
             try {
             	Log.info("Updating database schema from version = " + version);
                 c = getConnection();
                 doUpdate(c, "CREATE INDEX " + tableMaps + "_idx ON " + tableMaps + "(WorldID, MapID, Variant, ServerID)");  
-                doUpdate(c, "UPDATE " + tableSchemaVersion + " SET level=4 WHERE level = 3;");
-                version = 4;
+                doUpdate(c, "UPDATE " + tableSchemaVersion + " SET level=6 WHERE level = 5;");
+                version = 2;
             } catch (SQLException x) {
-            	logSQLException("Error upgrading tables to version=4", x);
+            	logSQLException("Error updating tables to version=6", x);
                 err = true;
                 return false;
             } finally {
                 releaseConnection(c, err);
                 c = null;
-            }
+            }        	
         }
     	Log.info("Schema version = " + version);
         // Load maps table - cache results
@@ -536,7 +519,7 @@ public class PostgreSQLMapStorage extends MapStorage {
         
         return true;
     }
-
+        
     private Connection getConnection() throws SQLException {
         Connection c = null;
         synchronized (cpool) {
@@ -566,10 +549,11 @@ public class PostgreSQLMapStorage extends MapStorage {
         }
         return c;
     }
+    
     private static Connection configureConnection(Connection conn) throws SQLException {
         return conn;
     }
-
+    
     private void releaseConnection(Connection c, boolean err) {
         if (c == null) return;
         synchronized (cpool) {
@@ -644,7 +628,7 @@ public class PostgreSQLMapStorage extends MapStorage {
 
     @Override
     public void enumMapTiles(DynmapWorld world, MapType map,
-            MapStorageTileEnumCB cb) {
+                             MapStorageTileEnumCB cb) {
         List<MapType> mtlist;
 
         if (map != null) {
@@ -657,6 +641,23 @@ public class PostgreSQLMapStorage extends MapStorage {
             ImageVariant[] vars = mt.getVariants();
             for (ImageVariant var : vars) {
                 processEnumMapTiles(world, mt, var, cb, null, null);
+            }
+        }
+    }
+    @Override
+    public void enumMapBaseTiles(DynmapWorld world, MapType map, MapStorageBaseTileEnumCB cbBase, MapStorageTileSearchEndCB cbEnd) {
+        List<MapType> mtlist;
+
+        if (map != null) {
+            mtlist = Collections.singletonList(map);
+        }
+        else {  // Else, add all directories under world directory (for maps)
+            mtlist = new ArrayList<MapType>(world.maps);
+        }
+        for (MapType mt : mtlist) {
+            ImageVariant[] vars = mt.getVariants();
+            for (ImageVariant var : vars) {
+                processEnumMapTiles(world, mt, var, null, cbBase, cbEnd);
             }
         }
     }
@@ -694,23 +695,6 @@ public class PostgreSQLMapStorage extends MapStorage {
             releaseConnection(c, err);
         }
     }
-    @Override
-    public void enumMapBaseTiles(DynmapWorld world, MapType map, MapStorageBaseTileEnumCB cbBase, MapStorageTileSearchEndCB cbEnd) {
-        List<MapType> mtlist;
-
-        if (map != null) {
-            mtlist = Collections.singletonList(map);
-        }
-        else {  // Else, add all directories under world directory (for maps)
-            mtlist = new ArrayList<MapType>(world.maps);
-        }
-        for (MapType mt : mtlist) {
-            ImageVariant[] vars = mt.getVariants();
-            for (ImageVariant var : vars) {
-                processEnumMapTiles(world, mt, var, null, cbBase, cbEnd);
-            }
-        }
-    }
 
     @Override
     public void purgeMapTiles(DynmapWorld world, MapType map) {
@@ -729,7 +713,6 @@ public class PostgreSQLMapStorage extends MapStorage {
             }
         }
     }
-
     private void processPurgeMapTiles(DynmapWorld world, MapType map, ImageVariant var) {
         Connection c = null;
         boolean err = false;
@@ -739,7 +722,9 @@ public class PostgreSQLMapStorage extends MapStorage {
             c = getConnection();
             // Query tiles for given mapkey
             Statement stmt = c.createStatement();
-            stmt.executeUpdate("DELETE FROM " + tableTiles + " WHERE MapID=" + mapkey + ";");
+            // Limit delete to 1000 at a time (avoid locking whole table)
+            while (stmt.executeUpdate("DELETE FROM " + tableTiles + " WHERE MapID=" + mapkey + " LIMIT 1000;") > 0) {
+            }
             stmt.close();
         } catch (SQLException x) {
         	logSQLException("Tile purge error", x);
@@ -808,7 +793,7 @@ public class PostgreSQLMapStorage extends MapStorage {
             rs.close();
             stmt.close();
         } catch (SQLException x) {
-        	logSQLException("Face read error", x);
+        	logSQLException("Face reqd error", x);
             err = true;
         } finally {
             releaseConnection(c, err);
@@ -991,31 +976,31 @@ public class PostgreSQLMapStorage extends MapStorage {
     @Override
     // External web server only
     public String getMarkersURI(boolean login_enabled) {
-        return "standalone/PostgreSQL_markers.php?marker=";
+        return "standalone/MSSQL_markers.php?marker=";
    }
 
     @Override
     // External web server only
     public String getTilesURI(boolean login_enabled) {
-        return "standalone/PostgreSQL_tiles.php?tile=";
+        return "standalone/MSSQL_tiles.php?tile=";
     }
 
     @Override
     // External web server only
     public String getConfigurationJSONURI(boolean login_enabled) {
-        return "standalone/PostgreSQL_configuration.php"; // ?serverid={serverid}";
+        return "standalone/MSSQL_configuration.php"; // ?serverid={serverid}";
     }
     
     @Override
     // External web server only
     public String getUpdateJSONURI(boolean login_enabled) {
-        return "standalone/PostgreSQL_update.php?world={world}&ts={timestamp}"; // &serverid={serverid}";
+        return "standalone/MSSQL_update.php?world={world}&ts={timestamp}"; // &serverid={serverid}";
     }
 
     @Override
     // External web server only
     public String getSendMessageURI() {
-        return "standalone/PostgreSQL_sendmessage.php";
+        return "standalone/MSSQL_sendmessage.php";
     }
 
     @Override
@@ -1106,15 +1091,16 @@ public class PostgreSQLMapStorage extends MapStorage {
     @Override
     // External web server only
     public String getStandaloneLoginURI() {
-        return "standalone/PostgreSQL_login.php";
+        return "standalone/MSSQL_login.php";
     }
     @Override
     // External web server only
     public String getStandaloneRegisterURI() {
-        return "standalone/PostgreSQL_register.php";
+        return "standalone/MSSQL_register.php";
     }
     @Override
     public void setLoginEnabled(DynmapCore core) {
         writeConfigPHP(core);
     }
+
 }

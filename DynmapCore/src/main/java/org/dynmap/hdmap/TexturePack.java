@@ -1254,8 +1254,13 @@ public class TexturePack {
         /* Load image */
         if(is != null) {
             ImageIO.setUseCache(false);
-            img = ImageIO.read(is);
-            if(img == null) { throw new FileNotFoundException(); }
+            try {
+            	img = ImageIO.read(is);
+            } catch (IOException iox) {
+            }
+            if (img == null) { 
+            	Log.warning(String.format("Error loading image %s from module %s", fname, modid));
+        	}
         }
         if(idx >= imgs.length) {
             LoadedImage[] newimgs = new LoadedImage[idx+1];
@@ -2097,7 +2102,7 @@ public class TexturePack {
                             else if(av[0].equals("custColorMult")) {
                                 try {
                                     Class<?> cls = Class.forName(av[1]);
-                                    custColorMult = (CustomColorMultiplier)cls.newInstance();
+                                    custColorMult = (CustomColorMultiplier)cls.getDeclaredConstructor().newInstance();
                                 } catch (Exception x) {
                                     Log.severe("Error loading custom color multiplier - " + av[1] + ": " + x.getMessage());
                                 }
@@ -2263,7 +2268,7 @@ public class TexturePack {
                         else if(av[0].equals("custColorMult")) {
                             try {
                                 Class<?> cls = Class.forName(av[1]);
-                                custColorMult = (CustomColorMultiplier)cls.newInstance();
+                                custColorMult = (CustomColorMultiplier)cls.getDeclaredConstructor().newInstance();
                             } catch (Exception x) {
                                 Log.severe("Error loading custom color multiplier - " + av[1] + ": " + x.getMessage());
                             }
@@ -2542,7 +2547,11 @@ public class TexturePack {
         else {
             faceindex = laststep.ordinal();
         }
-        textid = map.faces[faceindex];
+        try {
+        	textid = map.faces[faceindex];
+        } catch (ArrayIndexOutOfBoundsException aioob) {
+        	textid = -1;
+        }
         if (ctm != null) {
             int mod = 0;
             if(textid >= COLORMOD_MULT_INTERNAL) {

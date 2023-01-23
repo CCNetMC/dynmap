@@ -109,4 +109,16 @@ public class MapChunkCache119 extends GenericMapChunkCache {
         this.w = dw.getWorld();
         super.setChunks(dw, chunks);
     }
+
+    @Override
+    public int getFoliageColor(BiomeMap bm, int[] colormap, int x, int z) {
+        return bm.<BiomeBase>getBiomeObject().map(BiomeBase::j).flatMap(BiomeFog::e).orElse(colormap[bm.biomeLookup()]);
+    }
+
+    @Override
+    public int getGrassColor(BiomeMap bm, int[] colormap, int x, int z) {
+        BiomeFog fog = bm.<BiomeBase>getBiomeObject().map(BiomeBase::j).orElse(null);
+        if (fog == null) return colormap[bm.biomeLookup()];
+        return fog.g().a(x, z, fog.f().orElse(colormap[bm.biomeLookup()]));
+    }
 }

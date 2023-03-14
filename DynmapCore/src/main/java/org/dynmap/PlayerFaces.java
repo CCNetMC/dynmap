@@ -340,6 +340,9 @@ public class PlayerFaces {
 
     public static String fetchOnlineUUID(String username) {
         String request = getRequest("https://api.mojang.com/users/profiles/minecraft/" + username);
+        if (request == null) {
+            return null;
+        }
         JSONObject UUIDObject;
         try {
             UUIDObject = (JSONObject) JSONValue.parseWithException(request);
@@ -368,9 +371,8 @@ public class PlayerFaces {
             reader.close();
             connection.disconnect();
             return buffer.toString();
-
         } catch (IOException e) {
-            e.printStackTrace();
+            // cracked user - e.printStackTrace();
         }
         return null;
     }

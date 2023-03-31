@@ -3331,10 +3331,10 @@ public class MarkerAPIImpl implements MarkerAPI, Event.Listener<DynmapWorld> {
                     mi = MarkerAPIImpl.getMarkerIconImpl(MarkerIcon.DEFAULT);
                 mdata.put("icon", mi.getMarkerIconID());
                 mdata.put("dim", mi.getMarkerIconSize().getSize());
-                mdata.put("label", m.getLabel());
+                mdata.put("label", Client.sanitizeHTML(m.getLabel()));
                 mdata.put("markup", m.isLabelMarkup());
                 if(m.getDescription() != null)
-                    mdata.put("desc", m.getDescription());
+                    mdata.put("desc", Client.sanitizeHTML(m.getDescription()));
                 if (m.getMinZoom() >= 0) {
                     mdata.put("minzoom", m.getMinZoom());
                 }

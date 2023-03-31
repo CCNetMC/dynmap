@@ -7,6 +7,7 @@ import org.dynmap.bukkit.helper.BukkitVersionHelperCB;
 import org.dynmap.bukkit.helper.BukkitVersionHelperGlowstone;
 import org.dynmap.bukkit.helper.v119.BukkitVersionHelperSpigot119;
 import org.dynmap.bukkit.helper.v119_3.BukkitVersionHelperSpigot119_3;
+import org.dynmap.bukkit.helper.v119_4.BukkitVersionHelperSpigot119_4;
 
 public class Helper {
 
@@ -35,7 +36,7 @@ public class Helper {
             else if (v.contains("(MC: 1.19)") || v.contains("(MC: 1.19.1)") || v.contains("(MC: 1.19.2)")) {
             	BukkitVersionHelper.helper = new BukkitVersionHelperSpigot119();
             }
-            else if (v.contains("(MC: 1.19.")) {
+            else if (v.contains("(MC: 1.19.3)")) {
             	BukkitVersionHelper.helper = new BukkitVersionHelperSpigot119_3();
             }
             else {

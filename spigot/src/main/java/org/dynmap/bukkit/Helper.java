@@ -39,6 +39,9 @@ public class Helper {
             else if (v.contains("(MC: 1.19.3)")) {
             	BukkitVersionHelper.helper = new BukkitVersionHelperSpigot119_3();
             }
+            else if (v.contains("(MC: 1.19.")) {
+                BukkitVersionHelper.helper = new BukkitVersionHelperSpigot119_4();
+            }
             else {
             	BukkitVersionHelper.helper = new BukkitVersionHelperCB();
             }

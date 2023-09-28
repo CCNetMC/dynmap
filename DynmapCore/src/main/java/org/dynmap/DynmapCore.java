@@ -164,6 +164,7 @@ public class DynmapCore implements DynmapCommonAPI {
     private File dataDirectory;
     private File tilesDirectory;
     private File exportDirectory;
+    private File importDirectory;
     private String plugin_ver;
     private MapStorage defaultStorage;
     
@@ -223,6 +224,9 @@ public class DynmapCore implements DynmapCommonAPI {
     }
     public final File getExportFolder() {
         return exportDirectory;
+    }
+    public final File getImportFolder() {
+        return importDirectory;
     }
     public void setMinecraftVersion(String mcver) {
         this.platformVersion = mcver;
@@ -427,6 +431,11 @@ public class DynmapCore implements DynmapCommonAPI {
         exportDirectory = getFile(configuration.getString("exportpath", "export"));
         if (!exportDirectory.isDirectory() && !exportDirectory.mkdirs()) {
             Log.warning("Could not create directory for exports ('" + exportDirectory + "').");
+        }
+        // Prime the imports directory
+        importDirectory = getFile(configuration.getString("importpath", "import"));
+        if (!importDirectory.isDirectory() && !importDirectory.mkdirs()) {
+            Log.warning("Could not create directory for imports ('" + importDirectory + "').");
         }
         // Create default storage handler
         String storetype = configuration.getString("storage/type", "filetree");
@@ -1359,7 +1368,7 @@ public class DynmapCore implements DynmapCommonAPI {
         new CommandInfo("dmap", "mapadd", "<world>:<map> <attrib>:<value> <attrib>:<value>", "Create map for world <world> with name <map> using provided attributes."),
         new CommandInfo("dmap", "mapset", "<world>:<map> <attrib>:<value> <attrib>:<value>", "Update map <map> of world <world> with new attribute values."),
         new CommandInfo("dmap", "worldreset", "<world>", "Reset world <world> to default template for world type"),
-        new CommandInfo("dmap", "worldreset", "<world> <templatename>", "Reset world <world> to temaplte <templatename>."),
+        new CommandInfo("dmap", "worldreset", "<world> <templatename>", "Reset world <world> to template <templatename>."),
         new CommandInfo("dmap", "worldgetlimits", "<world>", "List visibity and hidden limits for world"),
         new CommandInfo("dmap", "worldaddlimit", "<world> corner1:<x>/<z> corner2:<x>/<z>", "Add rectangular visibilty limit"),
         new CommandInfo("dmap", "worldaddlimit", "<world> type:round center:<x>/<z> radius:<radius>", "Add round visibilty limit"),

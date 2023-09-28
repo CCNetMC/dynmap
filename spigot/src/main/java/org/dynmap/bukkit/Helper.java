@@ -1,5 +1,7 @@
 package org.dynmap.bukkit;
 
+import java.lang.reflect.Constructor;
+
 import org.bukkit.Bukkit;
 import org.dynmap.Log;
 import org.dynmap.bukkit.helper.BukkitVersionHelper;
@@ -12,6 +14,16 @@ import org.dynmap.bukkit.helper.v120.BukkitVersionHelperSpigot120;
 
 public class Helper {
 
+	private static BukkitVersionHelper loadVersionHelper(String classname) {
+		try {
+			Class<?> c = Class.forName(classname);
+			Constructor<?> cons = c.getConstructor();
+			return (BukkitVersionHelper) cons.newInstance();
+		} catch (Exception x) {
+			Log.severe("Error loading " + classname, x);
+			return null;
+		}
+	}
     public static final BukkitVersionHelper getHelper() {
         if (BukkitVersionHelper.helper == null) {
         	String v = Bukkit.getServer().getVersion();
@@ -32,22 +44,25 @@ public class Helper {
             }
             else if(Bukkit.getServer().getClass().getName().contains("GlowServer")) {
                 Log.info("Loading Glowstone support");
-                BukkitVersionHelper.helper = new BukkitVersionHelperGlowstone();
+                BukkitVersionHelper.helper = loadVersionHelper("org.dynmap.bukkit.helper.BukkitVersionHelperGlowstone");
+            }
+            else if (v.contains("(MC: 1.20)") || v.contains("(MC: 1.20.1)")) {
+            	BukkitVersionHelper.helper = loadVersionHelper("org.dynmap.bukkit.helper.v120.BukkitVersionHelperSpigot120");
             }
             else if (v.contains("(MC: 1.20")) {
-            	BukkitVersionHelper.helper = new BukkitVersionHelperSpigot120();
+            	BukkitVersionHelper.helper = loadVersionHelper("org.dynmap.bukkit.helper.v120_2.BukkitVersionHelperSpigot120_2");
             }
             else if (v.contains("(MC: 1.19)") || v.contains("(MC: 1.19.1)") || v.contains("(MC: 1.19.2)")) {
-            	BukkitVersionHelper.helper = new BukkitVersionHelperSpigot119();
+            	BukkitVersionHelper.helper = loadVersionHelper("org.dynmap.bukkit.helper.v119.BukkitVersionHelperSpigot119");
             }
             else if (v.contains("(MC: 1.19.3)")) {
-            	BukkitVersionHelper.helper = new BukkitVersionHelperSpigot119_3();
+            	BukkitVersionHelper.helper = loadVersionHelper("org.dynmap.bukkit.helper.v119_3.BukkitVersionHelperSpigot119_3");
             }
             else if (v.contains("(MC: 1.19.")) {
-                BukkitVersionHelper.helper = new BukkitVersionHelperSpigot119_4();
+            	BukkitVersionHelper.helper = loadVersionHelper("org.dynmap.bukkit.helper.v119_4.BukkitVersionHelperSpigot119_4");
             }
             else {
-            	BukkitVersionHelper.helper = new BukkitVersionHelperCB();
+            	BukkitVersionHelper.helper = loadVersionHelper("org.dynmap.bukkit.helper.BukkitVersionHelperCB");
             }
         }
         return BukkitVersionHelper.helper;

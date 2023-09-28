@@ -144,6 +144,7 @@ class MarkerImpl implements Marker {
         if((icns != null) && (icns.contains(icon) == false)) {
             return false;
         }
+        if (this.icon == (MarkerIconImpl) icon) return true; // CCNet - exit fast if same
         this.icon = (MarkerIconImpl)icon;
         MarkerAPIImpl.markerUpdated(this, MarkerUpdate.UPDATED);
         if(ispersistent)
@@ -170,7 +171,9 @@ class MarkerImpl implements Marker {
     @Override
     public void setLabel(String lbl, boolean markup) {
         if(markerset == null) return;
-    	label = Client.sanitizeHTML(markup ? lbl : Client.encodeForHTML(lbl));
+        String newLabel = Client.sanitizeHTML(markup ? lbl : Client.encodeForHTML(lbl));
+        if (newLabel.equals(label)) return; // CCNet - exit fast if already exists
+    	this.label = newLabel;
         this.markup = markup;
         MarkerAPIImpl.markerUpdated(this, MarkerUpdate.UPDATED);
         if(ispersistent)
@@ -226,6 +229,7 @@ class MarkerImpl implements Marker {
     @Override
     public void setLocation(String worldid, double x, double y, double z) {
         if(markerset == null) return;
+        if (this.world.equals(worldid) && this.x == x && this.y == y && this.z == z) return; // CCNet - exit fast if same
         this.world = worldid;
         this.x = x;
         this.y = y;
@@ -242,7 +246,7 @@ class MarkerImpl implements Marker {
     public void setDescription(String desc) {
         if(markerset == null) return;
         desc = Client.sanitizeHTML(desc);
-        if((this.desc == null) || (this.desc.equals(desc) == false)) {
+        if((this.desc == null) || (!this.desc.equals(desc))) {
             this.desc = desc;
             MarkerAPIImpl.markerUpdated(this, MarkerUpdate.UPDATED);
             if(ispersistent)

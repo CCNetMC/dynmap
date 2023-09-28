@@ -217,7 +217,9 @@ class AreaMarkerImpl implements AreaMarker, EnterExitMarker {
     @Override
     public void setLabel(String lbl, boolean markup) {
         if(markerset == null) return;
-        label = markup ? Client.sanitizeHTML(lbl) : Client.encodeForHTML(lbl);
+        String newLabel = markup ? Client.sanitizeHTML(lbl) : Client.encodeForHTML(lbl);
+        if (this.label.equals(newLabel)) return; // CCNet - exit fast if same
+        this.label = newLabel;
         this.markup = markup;
         MarkerAPIImpl.areaMarkerUpdated(this, MarkerUpdate.UPDATED);
         if(ispersistent)
@@ -296,7 +298,7 @@ class AreaMarkerImpl implements AreaMarker, EnterExitMarker {
     public void setDescription(String desc) {
         if(markerset == null) return;
         desc = Client.sanitizeHTML(desc);
-        if((this.desc == null) || (this.desc.equals(desc) == false)) {
+        if((this.desc == null) || (!this.desc.equals(desc))) {
             this.desc = desc;
             MarkerAPIImpl.areaMarkerUpdated(this, MarkerUpdate.UPDATED);
             if(ispersistent)

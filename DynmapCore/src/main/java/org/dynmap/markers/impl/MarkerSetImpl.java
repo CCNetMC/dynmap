@@ -267,6 +267,10 @@ class MarkerSetImpl implements MarkerSet {
      * @param marker
      */
     void insertAreaMarker(AreaMarkerImpl marker) {
+        if (areamarkers.containsKey(marker.getMarkerID()) && areamarkers.get(marker.getMarkerID()).equals(marker)) {
+            // CCNet - exit fast if already exists
+            return;
+        }
         areamarkers.put(marker.getMarkerID(),marker);   /* Add to set */
         if (marker.getBoostFlag()) {
             if (boostingareamarkers == null) {
